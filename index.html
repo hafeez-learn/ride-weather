@@ -24,7 +24,7 @@
 
         header {
             background: linear-gradient(135deg, #1a1f2e 0%, #0d1117 100%);
-            padding: 16px;
+            padding: 10px 16px;
             border-bottom: 1px solid #30363d;
             position: sticky;
             top: 0;
@@ -32,7 +32,7 @@
         }
 
         h1 {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 700;
             background: linear-gradient(90deg, #58a6ff, #a371f7);
             -webkit-background-clip: text;
@@ -53,13 +53,13 @@
         }
 
         #map {
-            height: 45vh;
+            height: 50vh;
             width: 100%;
             background: #161b22;
         }
 
         .controls {
-            padding: 16px;
+            padding: 12px 16px;
             background: #161b22;
             border-bottom: 1px solid #30363d;
         }
@@ -101,12 +101,12 @@
 
         input {
             flex: 1;
-            padding: 12px 16px;
+            padding: 14px 16px;
             border: 1px solid #30363d;
-            border-radius: 8px;
+            border-radius: 10px;
             background: #0d1117;
             color: #e6edf3;
-            font-size: 1rem;
+            font-size: 1.05rem;
         }
 
         input:focus {
@@ -117,6 +117,7 @@
 
         input::placeholder {
             color: #6e7681;
+            font-size: 1rem;
         }
 
         .input-wrapper {
@@ -171,10 +172,10 @@
         }
 
         button {
-            padding: 12px 20px;
+            padding: 14px 20px;
             border: none;
-            border-radius: 8px;
-            font-size: 1rem;
+            border-radius: 10px;
+            font-size: 1.05rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
@@ -183,6 +184,8 @@
         .btn-primary {
             background: linear-gradient(135deg, #238636, #2ea043);
             color: white;
+            font-size: 1.1rem;
+            padding: 16px 24px;
         }
 
         .btn-primary:hover {
@@ -199,6 +202,7 @@
             background: #21262d;
             color: #e6edf3;
             border: 1px solid #30363d;
+            padding: 14px 14px;
         }
 
         .btn-secondary:hover {
@@ -504,26 +508,28 @@
 
         .btn-nav {
             flex: 1;
-            padding: 14px 20px;
+            padding: 18px 20px;
             background: linear-gradient(135deg, #238636, #2ea043);
             color: white;
             border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 600;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
             cursor: pointer;
+            text-align: center;
         }
 
         .btn-nav-secondary {
-            flex: 1;
-            padding: 14px 20px;
+            padding: 18px 16px;
             background: #161b22;
             color: #58a6ff;
             border: 1px solid #30363d;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
+            text-align: center;
+            white-space: nowrap;
         }
 
         .navigation-panel {
@@ -767,7 +773,6 @@
 <body>
     <header>
         <h1>🚴 Ride Weather</h1>
-        <div class="subtitle">Bike route planner with weather alerts</div>
     </header>
 
     <main>
