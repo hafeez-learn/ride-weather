@@ -537,24 +537,24 @@
         .nav-controls {
             background: #161b22;
             border-top: 1px solid #30363d;
-            padding: 16px;
+            padding: 14px 16px 16px;
         }
 
         .nav-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .nav-status {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: #3fb950;
             background: rgba(63, 185, 80, 0.15);
-            padding: 5px 12px;
+            padding: 5px 10px;
             border-radius: 20px;
         }
 
@@ -566,32 +566,30 @@
             color: white;
             border: none;
             border-radius: 8px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 700;
-            padding: 10px 20px;
+            padding: 8px 18px;
             cursor: pointer;
             min-height: 44px;
-            min-width: 70px;
+            min-width: 66px;
+        }
+
+        .nav-main {
+            text-align: center;
+            margin-bottom: 10px;
         }
 
         .nav-turn {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-weight: 800;
             color: #e6edf3;
-            text-align: center;
             margin-bottom: 4px;
-            min-height: 2rem;
             line-height: 1.2;
         }
 
-        .nav-meta {
-            display: flex;
-            justify-content: center;
-            gap: 16px;
+        .nav-distance {
             font-size: 0.85rem;
             color: #8b949e;
-            min-height: 1.4rem;
-            margin-bottom: 12px;
         }
 
         .nav-progress {
@@ -889,8 +887,10 @@
                         <span class="nav-status" id="nav-status">Ride Started</span>
                         <button class="btn-stop" onclick="stopRide()">Stop</button>
                     </div>
-                    <div class="nav-turn" id="nav-turn">Calculating route...</div>
-                    <div class="nav-meta" id="nav-distance"></div>
+                    <div class="nav-main">
+                        <div class="nav-turn" id="nav-turn">Calculating route...</div>
+                        <div class="nav-distance" id="nav-distance"></div>
+                    </div>
                     <div class="nav-progress">
                         <div class="nav-progress-bar" id="nav-progress-bar"></div>
                     </div>
