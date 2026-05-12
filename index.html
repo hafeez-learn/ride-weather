@@ -767,37 +767,33 @@
         }
 
         async function geocode(location) {
-            // Handle Singapore 6-digit postal codes
-            let searchQuery = location;
+            // Handle Singapore 6-digit postal codes - use OneMap directly
             if (/^\d{6}$/.test(location.trim())) {
-                searchQuery = `${location.trim()}, Singapore`;
+                try {
+                    const onemapResponse = await fetch(
+                        `https://www.onemap.gov.sg/api/common/elastic/search?searchVal=${encodeURIComponent(location.trim())}&returnGeom=Y&getAddrDetails=Y&pageNum=1`
+                    );
+                    const onemapData = await onemapResponse.json();
+                    if (onemapData.found > 0 && onemapData.results && onemapData.results.length > 0) {
+                        const r = onemapData.results[0];
+                        return {
+                            lat: parseFloat(r.LATITUDE),
+                            lon: parseFloat(r.LONGITUDE),
+                            name: r.ADDRESS
+                        };
+                    }
+                } catch (e) {
+                    throw new Error(`Location not found: ${location}`);
+                }
+                throw new Error(`Location not found: ${location}`);
             }
 
+            // For non-postal code queries, use Nominatim
             const response = await fetch(
-                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=1&countrycodes=sg`
+                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=1&countrycodes=sg`
             );
             const data = await response.json();
             if (data.length === 0) {
-                // Try OneMap as fallback for postal codes
-                if (/^\d{6}$/.test(location.trim())) {
-                    try {
-                        const onemapResponse = await fetch(
-                            `https://www.onemap.gov.sg/api/common/elastic/search?searchVal=${encodeURIComponent(location.trim())}&returnGeom=Y&getAddrDetails=Y&pageNum=1`
-                        );
-                        const onemapData = await onemapResponse.json();
-                        // OneMap returns data even when error is present - check found > 0
-                        if (onemapData.found > 0 && onemapData.results && onemapData.results.length > 0) {
-                            const r = onemapData.results[0];
-                            return {
-                                lat: parseFloat(r.LATITUDE),
-                                lon: parseFloat(r.LONGITUDE),
-                                name: r.ADDRESS
-                            };
-                        }
-                    } catch (e) {
-                        // OneMap failed, continue to error
-                    }
-                }
                 throw new Error(`Location not found: ${location}`);
             }
             return {
