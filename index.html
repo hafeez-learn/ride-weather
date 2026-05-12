@@ -358,36 +358,24 @@
             margin-bottom: 12px;
         }
 
-        .hourly-scroll {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            padding-bottom: 8px;
-            scrollbar-width: thin;
-            scrollbar-color: #30363d #0d1117;
+        .hourly-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
         }
 
-        .hourly-scroll::-webkit-scrollbar {
-            height: 6px;
-        }
-
-        .hourly-scroll::-webkit-scrollbar-track {
-            background: #0d1117;
-        }
-
-        .hourly-scroll::-webkit-scrollbar-thumb {
-            background: #30363d;
-            border-radius: 3px;
+        @media (max-width: 480px) {
+            .hourly-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
         }
 
         .hour-item {
-            flex-shrink: 0;
             background: #161b22;
             border: 1px solid #30363d;
             border-radius: 10px;
-            padding: 12px;
+            padding: 10px 8px;
             text-align: center;
-            min-width: 70px;
         }
 
         .hour-item.rain {
@@ -396,26 +384,73 @@
         }
 
         .hour-time {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #8b949e;
             margin-bottom: 4px;
         }
 
         .hour-icon {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             margin: 4px 0;
         }
 
         .hour-temp {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-weight: 600;
             color: #e6edf3;
         }
 
         .hour-precip {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: #f85149;
             margin-top: 2px;
+        }
+
+        /* ── Ride Actions (always visible after route) ── */
+        .ride-actions {
+            padding: 12px 16px 16px;
+        }
+
+        .btn-full {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .action-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn-secondary-full {
+            flex: 1;
+            padding: 14px 12px;
+            background: #21262d;
+            color: #e6edf3;
+            border: 1px solid #30363d;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .btn-secondary-full:active {
+            background: #30363d;
+        }
+
+        .rain-toggle {
+            background: rgba(88, 166, 255, 0.1);
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(88, 166, 255, 0.3);
+            width: 100%;
+            justify-content: center;
+        }
+
+        .rain-toggle .toggle-text {
+            font-size: 0.95rem;
+            color: #58a6ff;
         }
 
         .loading {
@@ -830,22 +865,25 @@
 
                 <div class="hourly-forecast" id="hourly-forecast">
                     <h3>⏰ Hourly Forecast</h3>
-                    <div class="hourly-scroll" id="hourly-scroll"></div>
+                    <div class="hourly-grid" id="hourly-grid"></div>
                 </div>
 
                 <div id="alternate-route" style="display: none;"></div>
 
-                <div class="nav-controls" id="nav-controls" style="display: none;">
-                    <button class="btn-nav" id="start-ride-btn" onclick="startRide()">🚴 Start Ride</button>
-                    <button class="btn-nav-secondary" id="maps-btn" onclick="openInMaps()">🗺️ Open in Google Maps</button>
-                    <button class="btn-nav-secondary" id="alternate-btn" onclick="findAlternateRoute()">🔀 Alternate Route</button>
-                    <button class="btn-nav-secondary" id="reroute-btn" onclick="findAlternateRoute()" style="display:none;">🔀 New Route</button>
+                <div class="ride-actions">
+                    <button class="btn-primary btn-full" id="start-ride-btn" onclick="startRide()">🚴 Start Ride</button>
+                    <div class="action-row">
+                        <button class="btn-secondary-full" id="maps-btn" onclick="openInMaps()">🗺️ Google Maps</button>
+                        <button class="btn-secondary-full" id="alternate-btn" onclick="findAlternateRoute()">🔀 Alternate Route</button>
+                    </div>
                     <label class="toggle-label rain-toggle">
                         <input type="checkbox" id="rain-toggle" onchange="toggleRainLayer()">
                         <span class="toggle-slider"></span>
-                        <span class="toggle-text">🌧️ Rain</span>
+                        <span class="toggle-text">🌧️ Rain Overlay</span>
                     </label>
                 </div>
+
+                <div class="nav-controls" id="nav-controls" style="display: none;">
                     <div class="nav-header">
                         <span class="nav-status" id="nav-status">Ride Started</span>
                         <button class="btn-stop" onclick="stopRide()">Stop</button>
@@ -1334,8 +1372,8 @@
             `;
 
             // Display hourly forecast
-            const hourlyScroll = document.getElementById('hourly-scroll');
-            hourlyScroll.innerHTML = '';
+            const hourlyGrid = document.getElementById('hourly-grid');
+            hourlyGrid.innerHTML = '';
 
             if (hourly && hourly.time && hourly.time.length > 0) {
                 const now = new Date();
@@ -1348,7 +1386,7 @@
                     const isRainHour = (weatherCode >= 61 && weatherCode <= 67) ||
                                        (weatherCode >= 80 && weatherCode <= 82);
 
-                    hourlyScroll.innerHTML += `
+                    hourlyGrid.innerHTML += `
                         <div class="hour-item ${isRainHour ? 'rain' : ''}">
                             <div class="hour-time">${hour}:00</div>
                             <div class="hour-icon">${getWeatherIcon(weatherCode)}</div>
