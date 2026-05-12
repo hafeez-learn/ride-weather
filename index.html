@@ -1286,6 +1286,9 @@
                 // Get weather along route
                 const weatherData = await getWeatherAlongRoute(route.geometry.coordinates);
 
+                // Store for rain layer overlay
+                currentWeather = weatherData;
+
                 // Display weather info
                 displayWeather(weatherData, route);
 
