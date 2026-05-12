@@ -893,8 +893,12 @@
 
         function selectLocation(inputId, lat, lon, displayName) {
             const input = document.getElementById(inputId);
-            // Use the postal code or first part of address as the display value
-            const shortName = displayName.split(',')[0].trim();
+            // Extract postal code (6 digits at end of OneMap address) or first part
+            let shortName = displayName.split(',')[0].trim();
+            const postalMatch = displayName.match(/\b(\d{6})\b/);
+            if (postalMatch) {
+                shortName = postalMatch[1];
+            }
             input.value = shortName;
             input.dataset.lat = lat;
             input.dataset.lon = lon;
