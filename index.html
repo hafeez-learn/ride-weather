@@ -64,6 +64,35 @@
             border-bottom: 1px solid #30363d;
         }
 
+        .quick-locations {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .quick-label {
+            font-size: 0.8rem;
+            color: #8b949e;
+        }
+
+        .btn-quick {
+            background: rgba(88, 166, 255, 0.1);
+            border: 1px solid rgba(88, 166, 255, 0.3);
+            color: #58a6ff;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-quick:hover {
+            background: rgba(88, 166, 255, 0.2);
+            border-color: rgba(88, 166, 255, 0.5);
+        }
+
         .input-group {
             display: flex;
             gap: 8px;
@@ -584,6 +613,103 @@
             border: 1px solid rgba(88, 166, 255, 0.3);
         }
 
+        /* ── Modal ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .modal-content {
+            background: #1a1f2e;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 480px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #30363d;
+        }
+
+        .modal-header h3 {
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #8b949e;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+
+        .modal-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .modal-field label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #e6edf3;
+        }
+
+        .modal-input-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .modal-input-row input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            background: #0d1117;
+            color: #e6edf3;
+            font-size: 0.9rem;
+        }
+
+        .btn-save {
+            width: 100%;
+            padding: 10px;
+            background: #238636;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-save:hover {
+            background: #2ea043;
+        }
+
+        .modal-footer {
+            padding: 12px 20px;
+            border-top: 1px solid #30363d;
+            text-align: center;
+        }
+
         .toggle-label input {
             display: none;
         }
@@ -648,6 +774,12 @@
         <div id="map"></div>
 
         <div class="controls">
+            <div class="quick-locations" id="quick-locations">
+                <span class="quick-label">Quick:</span>
+                <button class="btn-quick" onclick="setQuickLocation('home')">🏠 Home</button>
+                <button class="btn-quick" onclick="setQuickLocation('office')">🏢 Office</button>
+                <button class="btn-quick" onclick="openSettingsModal()">⚙️</button>
+            </div>
             <div class="input-group">
                 <div class="input-wrapper">
                     <input type="text" id="start-input" placeholder="Start location or postal code" value="" autocomplete="off">
@@ -1731,6 +1863,130 @@
                    code >= 80 && code <= 82 ||  // Rain showers
                    code >= 95;                   // Thunderstorm
         }
+
+        // ── Saved locations (localStorage) ─────────────────────────────────
+        const SAVED_LOCATIONS_KEY = 'rideWeather_savedLocations';
+
+        function getSavedLocations() {
+            try {
+                return JSON.parse(localStorage.getItem(SAVED_LOCATIONS_KEY)) || {};
+            } catch { return {}; }
+        }
+
+        function saveLocations(locs) {
+            localStorage.setItem(SAVED_LOCATIONS_KEY, JSON.stringify(locs));
+        }
+
+        function updateQuickButtons() {
+            const locs = getSavedLocations();
+            const homeBtn = document.querySelector('.btn-quick[onclick="setQuickLocation(\'home\')"]');
+            const officeBtn = document.querySelector('.btn-quick[onclick="setQuickLocation(\'office\')"]');
+            if (homeBtn) homeBtn.textContent = locs.home ? `🏠 ${locs.home.postal}` : '🏠 Home';
+            if (officeBtn) officeBtn.textContent = locs.office ? `🏢 ${locs.office.postal}` : '🏢 Office';
+        }
+
+        // Fill start OR end from saved location (smart fill)
+        function setQuickLocation(which) {
+            const locs = getSavedLocations();
+            const loc = locs[which];
+            if (!loc) {
+                openSettingsModal(which);
+                return;
+            }
+            const startInput = document.getElementById('start-input');
+            const endInput = document.getElementById('end-input');
+            if (!startInput.value) {
+                startInput.value = loc.postal;
+            } else if (!endInput.value) {
+                endInput.value = loc.postal;
+            } else {
+                // Both filled — put in start, shift start→end
+                endInput.value = startInput.value;
+                startInput.value = loc.postal;
+            }
+        }
+
+        // ── Settings modal ───────────────────────────────────────────────────
+        function openSettingsModal(focusWhich) {
+            const locs = getSavedLocations();
+            const existing = document.getElementById('settings-modal');
+            if (existing) existing.remove();
+
+            const overlay = document.createElement('div');
+            overlay.id = 'settings-modal';
+            overlay.className = 'modal-overlay';
+            overlay.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>⚙️ Saved Locations</h3>
+                    <button class="modal-close" onclick="closeSettingsModal()">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-field">
+                        <label>🏠 Home</label>
+                        <div class="modal-input-row">
+                            <input type="text" id="modal-home-postal" placeholder="Postal code (e.g. 538473)" value="${locs.home?.postal || ''}">
+                            <input type="text" id="modal-home-name" placeholder="Label (e.g. Hougang)" value="${locs.home?.name || ''}">
+                        </div>
+                        <button class="btn-save" onclick="saveLocation('home')">Save Home</button>
+                    </div>
+                    <div class="modal-field">
+                        <label>🏢 Office</label>
+                        <div class="modal-input-row">
+                            <input type="text" id="modal-office-postal" placeholder="Postal code (e.g. 179101)" value="${locs.office?.postal || ''}">
+                            <input type="text" id="modal-office-name" placeholder="Label (e.g. Raffles)" value="${locs.office?.name || ''}">
+                        </div>
+                        <button class="btn-save" onclick="saveLocation('office')">Save Office</button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <small style="color:#8b949e">Stored locally on your device</small>
+                </div>
+            </div>`;
+            document.body.appendChild(overlay);
+            overlay.addEventListener('click', e => { if (e.target === overlay) closeSettingsModal(); });
+            if (focusWhich) {
+                setTimeout(() => document.getElementById(`modal-${focusWhich}-postal`)?.focus(), 100);
+            }
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settings-modal')?.remove();
+            updateQuickButtons();
+        }
+
+        async function saveLocation(which) {
+            const postal = document.getElementById(`modal-${which}-postal`).value.trim();
+            const name = document.getElementById(`modal-${which}-name`).value.trim();
+            if (!postal) {
+                alert('Please enter a postal code');
+                return;
+            }
+            if (!/^\d{6}$/.test(postal)) {
+                alert('Postal code must be exactly 6 digits');
+                return;
+            }
+            // Validate it exists via OneMap
+            try {
+                const res = await fetch(`https://www.onemap.gov.sg/api/common/elastic/search?searchVal=${postal}&returnGeom=Y&getAddrDetails=Y&pageNum=1`);
+                const data = await res.json();
+                if (!data.results || data.results.length === 0) {
+                    alert(`Could not find postal code ${postal}`);
+                    return;
+                }
+                const addr = data.results[0].ADDRESS;
+                const locs = getSavedLocations();
+                locs[which] = { postal, name: name || addr, address: addr };
+                saveLocations(locs);
+                updateQuickButtons();
+                closeSettingsModal();
+            } catch {
+                alert('Could not verify postal code. Check your connection.');
+            }
+        }
+
+        // Init quick buttons on load
+        updateQuickButtons();
     </script>
 </body>
 </html>
