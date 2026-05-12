@@ -1987,6 +1987,20 @@
 
         // Init quick buttons on load
         updateQuickButtons();
+
+        // Pre-populate default locations on first visit
+        (function initDefaultLocations() {
+            const locs = getSavedLocations();
+            if (!locs.home && !locs.office) {
+                // First visit — offer to pre-fill
+                const defaults = {
+                    home: { postal: '538473', name: 'Hougang Parkedge', address: '473D UPPER SERANGOON CRESCENT HOUGANG PARKEDGE SINGAPORE 538473' },
+                    office: { postal: '829854', name: 'Punggol Coast', address: '92 PUNGGOL WAY PUNGGOL COAST MALL (TOWER 6) SINGAPORE 829854' }
+                };
+                saveLocations(defaults);
+                updateQuickButtons();
+            }
+        })();
     </script>
 </body>
 </html>
