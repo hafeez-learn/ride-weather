@@ -1240,6 +1240,19 @@
             );
             const data = await response.json();
             if (!data) throw new Error('Weather data unavailable');
+            
+            // Batch API returns array of weather for each point; merge into single object
+            if (Array.isArray(data)) {
+                // Take the first point's weather (all points are within Singapore ~20km radius)
+                const first = data[0] || {};
+                // Merge hourly data by taking the first available
+                return {
+                    latitude: first.latitude,
+                    longitude: first.longitude,
+                    current: first.current,
+                    hourly: first.hourly
+                };
+            }
             return data;
         }
 
