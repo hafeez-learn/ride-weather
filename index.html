@@ -1249,8 +1249,8 @@
                 return {
                     latitude: first.latitude,
                     longitude: first.longitude,
-                    current: first.current,
-                    hourly: first.hourly
+                    current: first.current || {},
+                    hourly: first.hourly || {}
                 };
             }
             return data;
@@ -1298,13 +1298,13 @@
             let hasHeavyRain = false;
             let maxPrecipProb = 0;
 
-            if (weatherData.hourly) {
+            if (weatherData && weatherData.hourly && weatherData.hourly.time) {
                 for (let i = 0; i < Math.min(12, weatherData.hourly.time.length); i++) {
-                    const code = weatherData.hourly.weather_code[i];
-                    const precipProb = weatherData.hourly.precipitation_probability[i];
-                    const precip = weatherData.hourly.precipitation[i];
+                    const code = weatherData.hourly.weather_code ? weatherData.hourly.weather_code[i] : 0;
+                    const precipProb = weatherData.hourly.precipitation_probability ? weatherData.hourly.precipitation_probability[i] : 0;
+                    const precip = weatherData.hourly.precipitation ? weatherData.hourly.precipitation[i] : 0;
 
-                    if (precipProb > maxPrecipProb) maxPrecipProb = precipProb;
+                    if (precipProb != null && precipProb > maxPrecipProb) maxPrecipProb = precipProb;
 
                     if ((code >= 61 && code <= 67) || (code >= 80 && code <= 82)) {
                         hasRain = true;
