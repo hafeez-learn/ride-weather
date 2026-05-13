@@ -950,6 +950,8 @@
         let alternateRouteLayer = null;
         let currentRoute = null;
         let currentWeather = null;
+        let currentStart = null;
+        let currentEnd = null;
         let rainLayer = null;
         let rainLayerActive = false;
 
@@ -1523,6 +1525,10 @@
                 }
 
                 const endLoc = await geocode(endValue);
+
+                // Store start/end for alternate route lookup
+                currentStart = startLoc;
+                currentEnd = endLoc;
 
                 // Get route
                 const route = await getRoute(startLoc, endLoc);
