@@ -1956,7 +1956,7 @@
             // Create circle markers for rain areas
             const rainMarkers = L.layerGroup();
             rainSegments.forEach(seg => {
-                const color = seg.isHeavy ? 'rgba(0, 0, 200, 0.5)' : 'rgba(100, 100, 255, 0.4)';
+                const color = seg.isHeavy ? 'rgba(255, 80, 30, 0.6)' : 'rgba(255, 180, 0, 0.5)';
                 const marker = L.circleMarker([seg.lat, seg.lng], {
                     radius: 8,
                     fillColor: color,
