@@ -873,7 +873,7 @@
                     <button class="btn-primary btn-full" id="start-ride-btn" onclick="startRide()">🚴 Start Ride</button>
                     <div class="action-row">
                         <button class="btn-secondary-full" id="maps-btn" onclick="openInMaps()">🗺️ Google Maps</button>
-                        <button class="btn-secondary-full" id="alternate-btn" onclick="findAlternateRoute()">🔀 Alternate Route</button>
+                        <button class="btn-secondary-full" id="alternate-btn" onclick="handleAlternateRoute()">🔀 Alternate Route</button>
                     </div>
                     <label class="toggle-label rain-toggle">
                         <input type="checkbox" id="rain-toggle" onchange="toggleRainLayer()">
@@ -1405,11 +1405,45 @@
             document.getElementById('instructions').style.display = 'none';
         }
 
+        async function handleAlternateRoute() {
+            const btn = document.getElementById('alternate-btn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Loading...';
+
+            try {
+                const altRoute = await findAlternateRoute(currentStart, currentEnd);
+                const altDiv = document.getElementById('alternate-route');
+
+                if (altRoute) {
+                    displayAlternateRoute(altRoute);
+                    const dist = (altRoute.distance / 1000).toFixed(1);
+                    const dur = Math.round(altRoute.duration / 60);
+                    altDiv.innerHTML = `
+                        <div class="alternate-info">
+                            <span class="alt-badge">🔀 Alternate Route</span>
+                            <span class="alt-stats">${dist} km · ${dur} min</span>
+                        </div>
+                    `;
+                    altDiv.style.display = 'block';
+                } else {
+                    altDiv.innerHTML = `
+                        <div class="alternate-info">
+                            <span class="alt-badge">🔀 No Alternate Found</span>
+                        </div>
+                    `;
+                    altDiv.style.display = 'block';
+                    setTimeout(() => { altDiv.style.display = 'none'; }, 3000);
+                }
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🔀 Alternate Route';
+            }
+        }
+
         async function findAlternateRoute(start, end) {
             try {
-                // Try a different route profile or waypoints
                 const response = await fetch(
-                    `https://router.project-osrm.org/route/v1/cycling/${start.lon},${start.lat};${end.lon},${end.lat}?overview=full&geometries=geojson& alternatives=3`
+                    `https://router.project-osrm.org/route/v1/cycling/${start.lon},${start.lat};${end.lon},${end.lat}?overview=full&geometries=geojson&alternatives=3`
                 );
                 const data = await response.json();
                 if (data.routes && data.routes.length > 1) {
