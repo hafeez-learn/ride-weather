@@ -1,0 +1,23 @@
+{
+  "name": "ride-weather-repo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "test.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+"repository": {
+    "type": "git",
+    "url": "git+https://github.com/hafeez-learn/ride-weather.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hafeez-learn/ride-weather/issues"
+  },
+  "homepage": "https://github.com/hafeez-learn/ride-weather#readme",
+  "dependencies": {
+    "playwright": "^1.60.0"
+  }
+}
