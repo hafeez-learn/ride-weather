@@ -1813,38 +1813,64 @@
             return closestIdx / (routeCoords.length - 1);
         }
 
+        // Voice state
+        let _voiceLoadTimeout = null;
+
         function speak(text) {
-            const voiceEnabled = document.getElementById('voice-toggle') &&
-                               document.getElementById('voice-toggle').checked;
+            if (!text) return;
 
-            if (!voiceEnabled) return;
+            const voiceToggle = document.getElementById('voice-toggle');
+            if (!voiceToggle || !voiceToggle.checked) return;
 
-            if ('speechSynthesis' in window) {
-                // Cancel any ongoing speech
+            if (!('speechSynthesis' in window)) return;
+
+            // Guard: Safari requires user interaction before first speak
+            // and throws if speechSynthesis is in "ended" state. Reset it.
+            if (window.speechSynthesis.pending || window.speechSynthesis.speaking) {
                 window.speechSynthesis.cancel();
+            }
 
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.rate = 1.1;
-                utterance.pitch = 1.0;
-                utterance.volume = 1.0;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 1.1;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
 
-                // Try to use a female English voice if available
+            // Try to use a female English voice — but wait for voices to load
+            const trySpeak = () => {
                 const voices = window.speechSynthesis.getVoices();
                 const preferredVoice = voices.find(v =>
                     v.lang.startsWith('en') && (v.name.includes('Female') || v.name.includes('Samantha') || v.name.includes('Victoria'))
                 );
                 if (preferredVoice) utterance.voice = preferredVoice;
 
-                window.speechSynthesis.speak(utterance);
-            }
-        }
-
-        // Load voices (needed for some browsers)
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.getVoices();
-            window.speechSynthesis.onvoiceschanged = () => {
-                window.speechSynthesis.getVoices();
+                try {
+                    window.speechSynthesis.speak(utterance);
+                } catch (e) {
+                    console.warn('speak() error:', e);
+                }
             };
+
+            const voices = window.speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                // Voices already loaded — speak immediately
+                trySpeak();
+            } else {
+                // Wait for voices to load (async on Chrome mobile / Safari)
+                const onVoicesChanged = () => {
+                    clearTimeout(_voiceLoadTimeout);
+                    window.speechSynthesis.onvoiceschanged = null;
+                    trySpeak();
+                };
+                window.speechSynthesis.onvoiceschanged = onVoicesChanged;
+                // Fallback: if voices never fire, give up after 3s
+                _voiceLoadTimeout = setTimeout(() => {
+                    if (window.speechSynthesis.onvoiceschanged === onVoicesChanged) {
+                        window.speechSynthesis.onvoiceschanged = null;
+                        // Last resort — try without a specific voice
+                        try { window.speechSynthesis.speak(utterance); } catch (e) {}
+                    }
+                }, 3000);
+            }
         }
 
         // Show nav controls after route is displayed
